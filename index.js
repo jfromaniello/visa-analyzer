@@ -18,11 +18,11 @@ parser.parse(process.argv[2], (err, items) => {
   const totalUsdNotDues = _.sumBy(items.filter(i => i.currency === 'usd' && !i.dues), 'amount');
 
   const maxDues = _.max(items.map(i => (i.dues ? i.dues.total - i.dues.paid : 0)));
-  const projection = _.range(0, maxDues).map((month) => {
+
+  const projection = _.range(1, maxDues + 1).map((month) => {
     const dues = items.filter(i => i.dues).filter(i => i.dues.total >= i.dues.paid + month);
     return _.sumBy(dues, 'amount');
   }).reduce((r, amount, index) => {
-    if (index === 0) { return r; }
     const period = moment().add(index, 'month').format('MMM YYYY');
     return Object.assign(r, { [period]: amount });
   }, {});
