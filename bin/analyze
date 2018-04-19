@@ -14,8 +14,10 @@ parser.parse(process.argv[2], (err, result) => {
   }
 
   const { items } = result;
-  const totalArs = _.sum(items.map(i => (i.currency === 'ars' ? i.amount : 0)));
-  const totalUsd = _.sum(items.map(i => (i.currency === 'usd' ? i.amount : 0)));
+  // return console.dir(items.map(i => i.amount));
+
+  const totalArs = _.sum(items.map(i => (i.currency === 'ars' ? i.amount : 0))) + result.balance + result.interest + result.taxARS;
+  const totalUsd = _.sum(items.map(i => (i.currency === 'usd' ? i.amount : 0))) + result.taxUSD;
 
   const totalArsDues = _.sumBy(items.filter(i => i.currency === 'ars' && i.dues), 'amount');
   const totalArsNotDues = _.sumBy(items.filter(i => i.currency === 'ars' && !i.dues), 'amount');
@@ -36,12 +38,15 @@ parser.parse(process.argv[2], (err, result) => {
   console.log(`
   Balance anterior: ${result.balance}
 
+  Impuestos: ${result.taxARS}
+  Intereses: ${result.interest}
+
 💰Total en Pesos: ${totalArs.toFixed(2)}
 💵Total en Dolares: ${totalUsd.toFixed(2)}
 
 🤦🏽Total de consumos en una cuota en pesos: ${totalArsNotDues.toFixed(2)}
 🤦🏽Total de consumos en una cuota en usd: ${totalUsdNotDues.toFixed(2)}
-🤮 Total de las cuotas a pagar este mes: ${totalArsDues.toFixed(2)}
+🤮 Total de cuotas a pagar este mes: ${totalArsDues.toFixed(2)}
 
 🙏🏼Total de las cuotas que terminan este mes y no vendran el próximo 🙌🏼: ${duesEndingThisMonth.toFixed(2)}
 
