@@ -10,26 +10,71 @@ npm i -g jfromaniello/visa-analyzer
 ## Usage
 
 ```
-$ visa-analyzer ~/Downloads/resumen_cuenta_visa_Mar_2018.pdf
+$ visa-analyzer ~/Downloads/resumen_cuenta_visa_Mar_2018.pdf \
+  -r netflix \
+  -r spotify \
+  -r shell \
+  -r seguros
 
-💰Total en Pesos: XXXXXXX
-💵Total en Dolares: XX
+  Balance anterior: NNNN.nn
 
-🤦🏽Total de consumos en una cuota en pesos: XXXXX
-🤦🏽Total de consumos en una cuota en usd: XXX
-🤮 Total de las cuotas a pagar este mes: XXX
+  Impuestos: NNNN.nn
+  Intereses: NNNN.nn
 
-🙏🏼Total de las cuotas que terminan este mes y no vendran el próximo 🙌🏼: XXXX
+💰 Total en Pesos: NNNN.nn
+💵 Total en Dolares: NNNN.nn
 
-🙌🏽Proyección de cuotas:
+🙅‍ Total de cuotas a pagar este mes: NNNN.nn
+🙈 Total de consumos en una cuota en pesos: NNNN.nn
+🤦‍ Total de consumos recurrentes en pesos: NNNN.nn
+   - netflix:              NNNN.nn
+   - spotify:              NNNN.nn
+   - shell:                NNNN.nn
+   - seguros:              NNNN.nn
 
-- may. 2018:  xyyyyyy
-- jun. 2018:  xyyyyyy
-- jul. 2018:  xyyyyyy
-- ago. 2018:  xyyyyyy
-- sep. 2018:  xyyyyyy
-- oct. 2018:  xyyyyyy
-- nov. 2018:   xyyyyy
+💸 Total de consumos en una cuota en usd: NNNN.nn
+
+🙏🏼 Total de cuotas que terminan este mes 🙌🏼: NNNN.nn
+
+🙌🏽 Proyección de cuotas:
+
+- abr. 2018:  NNNN.nn
+- may. 2018:  NNNN.nn
+- jun. 2018:  NNNN.nn
+- jul. 2018:  NNNN.nn
+- ago. 2018:  NNNN.nn
+- sep. 2018:  NNNN.nn
+- oct. 2018:  NNNN.nn
+- nov. 2018:  NNNN.nn
+- dic. 2018:  NNNN.nn
+- ene. 2019:  NNNN.nn
+- feb. 2019:  NNNN.nn
+- mar. 2019:  NNNN.nn
+- abr. 2019:  NNNN.nn
+- may. 2019:  NNNN.nn
+- jun. 2019:  NNNN.nn
+- jul. 2019:  NNNN.nn
+- ago. 2019:  NNNN.nn
+
+🙈 Proyección de cuotas + consumos recurrentes:
+
+- abr. 2018:  NNNN.nn
+- may. 2018:  NNNN.nn
+- jun. 2018:  NNNN.nn
+- jul. 2018:  NNNN.nn
+- ago. 2018:  NNNN.nn
+- sep. 2018:  NNNN.nn
+- oct. 2018:  NNNN.nn
+- nov. 2018:  NNNN.nn
+- dic. 2018:  NNNN.nn
+- ene. 2019:  NNNN.nn
+- feb. 2019:  NNNN.nn
+- mar. 2019:  NNNN.nn
+- abr. 2019:  NNNN.nn
+- may. 2019:  NNNN.nn
+- jun. 2019:  NNNN.nn
+- jul. 2019:  NNNN.nn
+- ago. 2019:  NNNN.nn
 ```
 
 ## Trademarks
