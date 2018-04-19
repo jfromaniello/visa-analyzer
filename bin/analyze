@@ -1,12 +1,48 @@
 #!/usr/bin/env node
 
+const meow = require('meow');
 const _ = require('lodash');
 const moment = require('moment');
 const parser = require('../lib/parser');
 
 moment.locale('es');
 
-parser.parse(process.argv[2], (err, result) => {
+const cli = meow(`
+    Usage
+      $ visa-analyzer <input>
+
+    Options
+      --recurring, -r  Lista de servicios recurrentes separados por coma.
+
+    Examples
+      $ visa-analyzer ~/Downloads/resumen_cuenta_visa_Mar_2018.pdf --r netflix -r spotify -r shell
+`, {
+  flags: {
+    recurring: {
+      type: 'string',
+      alias: 'r',
+    },
+  },
+});
+
+let recurring = [];
+
+if (cli.flags && cli.flags.recurring) {
+  recurring = Array.isArray(cli.flags.recurring) ? cli.flags.recurring : [cli.flags.recurring];
+}
+
+const isRecurring = i => i.currency === 'ars' &&
+  !i.dues &&
+  recurring.some(r => i.detail.includes(r.toUpperCase()));
+
+function isRecurringSpecific(rec) {
+  return item => item.detail.includes(rec.toUpperCase());
+}
+function emoji(str) {
+  return `${str} `;
+}
+
+parser.parse(cli.input[0], (err, result) => {
   if (err) {
     console.error(err.message);
     process.exit(1);
@@ -19,9 +55,14 @@ parser.parse(process.argv[2], (err, result) => {
   const totalArs = _.sum(items.map(i => (i.currency === 'ars' ? i.amount : 0))) + result.balance + result.interest + result.taxARS;
   const totalUsd = _.sum(items.map(i => (i.currency === 'usd' ? i.amount : 0))) + result.taxUSD;
 
-  const totalArsDues = _.sumBy(items.filter(i => i.currency === 'ars' && i.dues), 'amount');
-  const totalArsNotDues = _.sumBy(items.filter(i => i.currency === 'ars' && !i.dues), 'amount');
-  const totalUsdNotDues = _.sumBy(items.filter(i => i.currency === 'usd' && !i.dues), 'amount');
+  const groupedRecurring = recurring.reduce((grouped, rec) => {
+    return Object.assign(grouped, { [rec]: _.sumBy(items.filter(isRecurringSpecific(rec)), 'amount') });
+  }, {});
+
+  const totalArsFinanced = _.sumBy(items.filter(i => i.currency === 'ars' && i.dues), 'amount');
+  const totalArsRecurring = _.sumBy(items.filter(isRecurring), 'amount');
+  const totalArsNotFinanced = _.sumBy(items.filter(i => i.currency === 'ars' && !i.dues), 'amount') - totalArsRecurring;
+  const totalUsdNotFinanced = _.sumBy(items.filter(i => i.currency === 'usd' && !i.dues), 'amount');
 
   const maxDues = _.max(items.map(i => (i.dues ? i.dues.total - i.dues.paid : 0)));
 
@@ -41,18 +82,25 @@ parser.parse(process.argv[2], (err, result) => {
   Impuestos: ${result.taxARS}
   Intereses: ${result.interest}
 
-💰Total en Pesos: ${totalArs.toFixed(2)}
-💵Total en Dolares: ${totalUsd.toFixed(2)}
+💰 Total en Pesos: ${totalArs.toFixed(2)}
+💵 Total en Dolares: ${totalUsd.toFixed(2)}
 
-🤦🏽Total de consumos en una cuota en pesos: ${totalArsNotDues.toFixed(2)}
-🤦🏽Total de consumos en una cuota en usd: ${totalUsdNotDues.toFixed(2)}
-🤮 Total de cuotas a pagar este mes: ${totalArsDues.toFixed(2)}
+🙅‍ Total de cuotas a pagar este mes: ${totalArsFinanced.toFixed(2)}
+🙈 Total de consumos en una cuota en pesos: ${totalArsNotFinanced.toFixed(2)}
+🤦‍ Total de consumos recurrentes en pesos: ${totalArsRecurring.toFixed(2)}
+${Object.keys(groupedRecurring).map(rk => `   - ${_.padEnd(`${rk}:`, 20)}${_.padStart(groupedRecurring[rk].toFixed(2), 8, ' ')}`).join('\n')}
 
-🙏🏼Total de las cuotas que terminan este mes y no vendran el próximo 🙌🏼: ${duesEndingThisMonth.toFixed(2)}
+💸 Total de consumos en una cuota en usd: ${totalUsdNotFinanced.toFixed(2)}
 
-🙌🏽Proyección de cuotas:
+🙏🏼 Total de cuotas que terminan este mes 🙌🏼: ${duesEndingThisMonth.toFixed(2)}
+
+🙌🏽 Proyección de cuotas:
 
 ${Object.keys(projection).map(p => `- ${p}:${_.padStart(projection[p].toFixed(2), 10, ' ')}`).join('\n')}
+
+🙈 Proyección de cuotas + consumos recurrentes:
+
+${Object.keys(projection).map(p => `- ${p}:${_.padStart((projection[p] + totalArsRecurring).toFixed(2), 10, ' ')}`).join('\n')}
 `);
   // console.log(JSON.stringify(items, null, 2));
 });
