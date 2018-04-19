@@ -1,15 +1,19 @@
+#!/usr/bin/env node
+
 const _ = require('lodash');
 const moment = require('moment');
-const parser = require('./lib/parser');
+const parser = require('../lib/parser');
 
 moment.locale('es');
 
-parser.parse(process.argv[2], (err, items) => {
+parser.parse(process.argv[2], (err, result) => {
   if (err) {
     console.error(err.message);
     process.exit(1);
     return;
   }
+
+  const { items } = result;
   const totalArs = _.sum(items.map(i => (i.currency === 'ars' ? i.amount : 0)));
   const totalUsd = _.sum(items.map(i => (i.currency === 'usd' ? i.amount : 0)));
 
@@ -30,6 +34,8 @@ parser.parse(process.argv[2], (err, items) => {
   const duesEndingThisMonth = _.sumBy(items.filter(i => i.dues && i.dues.total === i.dues.paid), 'amount');
 
   console.log(`
+  Balance anterior: ${result.balance}
+
 💰Total en Pesos: ${totalArs.toFixed(2)}
 💵Total en Dolares: ${totalUsd.toFixed(2)}
 
